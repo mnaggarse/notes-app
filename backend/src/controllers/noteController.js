@@ -1,21 +1,20 @@
-import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import Note from "../models/noteModel.js";
 
-export const getAllNotes = async (req: Request, res: Response) => {
+export const getAllNotes = async (req, res) => {
   try {
     const notes = await Note.find();
     res.status(200).json(notes);
   } catch (err) {
-    res.status(500).json({ message: (err as Error).message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-export const getNoteById = async (req: Request, res: Response) => {
+export const getNoteById = async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json({ message: "Note not found" });
+    return res.status(400).json({ message: "Invalid id" });
   }
 
   try {
@@ -27,26 +26,26 @@ export const getNoteById = async (req: Request, res: Response) => {
 
     res.status(200).json(note);
   } catch (err) {
-    res.status(500).json({ message: (err as Error).message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-export const createNote = async (req: Request, res: Response) => {
+export const createNote = async (req, res) => {
   const { title, content } = req.body;
 
   if (!title) {
-    return res.status(400).json({ message: "Please enter title" });
+    return res.status(400).json({ message: "Title is required" });
   }
 
   try {
     const note = await Note.create({ title, content });
-    res.status(200).json({ message: "Note created successfully", note });
+    res.status(200).json({ message: "Note created successfully" });
   } catch (err) {
-    res.status(500).json({ message: (err as Error).message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-export const updateNote = async (req: Request, res: Response) => {
+export const updateNote = async (req, res) => {
   const { id } = req.params;
   const { title, content } = req.body;
 
@@ -65,17 +64,17 @@ export const updateNote = async (req: Request, res: Response) => {
     note.content = content || note.content;
 
     const updatedNote = await note.save();
-    res.status(200).json({ message: "Note updated successfully", updatedNote });
+    res.status(200).json({ message: "Note updated successfully" });
   } catch (err) {
-    res.status(500).json({ message: (err as Error).message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-export const deleteNote = async (req: Request, res: Response) => {
+export const deleteNote = async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json("Note not found");
+    return res.status(400).json("Invalid id");
   }
 
   try {
@@ -88,6 +87,6 @@ export const deleteNote = async (req: Request, res: Response) => {
     await Note.deleteOne({ _id: id });
     res.status(200).json({ message: "Note deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: (err as Error).message });
+    res.status(500).json({ message: err.message });
   }
 };
