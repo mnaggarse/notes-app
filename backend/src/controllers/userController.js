@@ -2,24 +2,15 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import User from "../models/userModel.js";
 
-export const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
 export const getUserById = async (req, res) => {
-  const { id } = req.params;
+  const userId = req.userId;
 
-  if (!mongoose.isValidObjectId(id)) {
+  if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: "Invalid id" });
   }
 
   try {
-    const user = await User.findById(id).select("-password");
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -31,27 +22,11 @@ export const getUserById = async (req, res) => {
   }
 };
 
-export const createUser = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = await User.create({ name, email, password: hashedPassword });
-    res.status(201).json({ message: "User created successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
 export const updateUser = async (req, res) => {
-  const { id } = req.params;
+  const userId = req.userId;
   const { name, email, password } = req.body;
 
-  if (!mongoose.isValidObjectId(id)) {
+  if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: "Invalid id" });
   }
 
@@ -60,7 +35,7 @@ export const updateUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -82,20 +57,20 @@ export const updateUser = async (req, res) => {
 };
 
 export const deleteUser = async (req, res) => {
-  const { id } = req.params;
+  const userId = req.userId;
 
-  if (!mongoose.isValidObjectId(id)) {
+  if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: "Invalid id" });
   }
 
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    await User.deleteOne({ _id: id });
+    await User.deleteOne({ _id: userId });
     res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
